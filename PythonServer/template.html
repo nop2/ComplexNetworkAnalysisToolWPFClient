@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="./echarts-5.3.2/package/dist/echarts.js"></script>
+    <script src="./bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js"></script>
+    <link href="./bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./bootstrap-icons-1.8.1/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        html, body {
+            width: 99%;
+            height: 99%;
+        }
+
+        #container, #graphContainer {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            position: relative;
+            float: left;
+        }
+
+        #menu {
+            width: 100%;
+            height: auto;
+            margin: 1px;
+            overflow-x: scroll;
+            display: none;
+        }
+
+        #settingButton {
+            height: 40px;
+            width: 40px;
+            position: absolute;
+            background-color: lightgray;
+            z-index: 999;
+            border: 1px solid rgba(238, 238, 238, 0.99);
+            background-color: rgba(238, 238, 238, 0.93);
+            border-radius: 6px;
+            margin: 20px;
+            align-content: center;
+        }
+    </style>
+
+</head>
+<body>
+<div id="menu">
+    <!--    调节节点大小-->
+    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group me-2" role="group" aria-label="First group">
+            <button type="button" class="btn btn-outline-primary">节点大小</button>
+            <button id="sizeBigButton" type="button" class="btn btn-outline-primary">
+                <i class="bi bi-zoom-in"></i>
+            </button>
+            <button id="sizeSmallButton" type="button" class="btn btn-outline-primary">
+                <i class="bi bi-zoom-out"></i>
+            </button>
+
+        </div>
+
+        <!--   边的弧度-->
+        <div class="btn-group me-2" role="group" aria-label="Second group">
+            <button type="button" class="btn btn-outline-primary">边弧度</button>
+            <div class="btn btn-outline-primary">
+                <input id="edgeRadianInput" type="number" oninput="if(value>1)value=1;if(value<0)value=0;"
+                       style="height: 25px"
+                       value="0" min="0" max="1.0" step="0.1" class="form-control" aria-describedby="button-addon1">
+            </div>
+
+        </div>
+
+
+        <!--    显示节点标签-->
+        <div class="btn-group me-2" role="group" aria-label="Second group">
+            <button type="button" class="btn btn-outline-primary">节点标签</button>
+            <button type="button" class="btn btn-outline-primary">
+                <div class="form-check form-switch">
+                    <input id="showLabelSwitch" checked="checked" class="form-check-input" type="checkbox"
+                           role="switch">
+
+                </div>
+            </button>
+
+        </div>
+
+        <!--    节点拖拽-->
+        <div class="btn-group me-2" role="group" aria-label="Second group">
+            <button type="button" class="btn btn-outline-primary">节点拖拽</button>
+            <button type="button" class="btn btn-outline-primary">
+                <div class="form-check form-switch">
+                    <input id="canDragSwitch" checked="checked" class="form-check-input" type="checkbox" role="switch">
+                </div>
+            </button>
+
+        </div>
+
+        <!--    画布缩放-->
+        <div class="btn-group me-2" role="group" aria-label="Second group">
+            <button type="button" class="btn btn-outline-primary">画布缩放</button>
+            <button type="button" class="btn btn-outline-primary">
+                <div class="form-check form-switch">
+                    <input id="canZoomSwitch" checked="checked" class="form-check-input" type="checkbox" role="switch">
+                </div>
+            </button>
+
+        </div>
+
+        <!--    元素高亮-->
+        <div class="btn-group me-2" role="group" aria-label="Second group">
+            <button type="button" class="btn btn-outline-primary">悬浮高亮</button>
+            <button type="button" class="btn btn-outline-primary">
+                <div class="form-check form-switch">
+                    <input id="highlightSwitch" checked="checked" class="form-check-input" type="checkbox"
+                           role="switch">
+                </div>
+            </button>
+
+        </div>
+
+
+        <!--    布局-->
+        <div class="btn-group me-2" role="group" aria-label="Second group">
+            <button type="button" class="btn btn-outline-success">布局</button>
+            <button type="button" class="btn btn-outline-success">斥力</button>
+            <div class="btn btn-outline-success">
+                <input id="repulsionInput" type="number" style="height: 25px;width: 100px"
+                       value="5000" step="100" class="form-control" aria-describedby="button-addon1">
+            </div>
+            <button type="button" class="btn btn-outline-success">引力</button>
+            <div class="btn btn-outline-success">
+                <input id="gravityInput" type="number" style="height: 25px;width: 100px"
+                       value="0.01" step="0.01" class="form-control" aria-describedby="button-addon1">
+            </div>
+            <button type="button" class="btn btn-outline-success">边长</button>
+            <div class="btn btn-outline-success">
+                <input id="edgeLengthInput" type="number" style="height: 25px;width: 100px"
+                       value="40" step="5" class="form-control" aria-describedby="button-addon1">
+            </div>
+            <button type="button" class="btn btn-outline-success">速度</button>
+            <div class="btn btn-outline-success">
+                <input id="frictionInput" type="number" oninput="if(value>1)value=1;if(value<0)value=0;"
+                       style="height: 25px"
+                       value="0.6" min="0" max="1.0" step="0.1" class="form-control" aria-describedby="button-addon1">
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+<div id="container">
+    <button id="settingButton">
+        <i class="bi bi-gear-fill"></i>
+    </button>
+    <div id="graphContainer">
+
+    </div>
+</div>
+</body>
+
+<script>
+
+    var myChart = echarts.init(document.getElementById("graphContainer"), {});
+    myChart.showLoading();
+
+    // var option = "$option$";
+    var graph = "$graph$";
+
+    myChart.hideLoading(); // 加载进度条
+
+    let edgeSymbol = ['none','none'];
+    if(graph.directed === 1){
+        edgeSymbol = ['none','arrow'];
+    }
+
+    option = {
+        tooltip: {},
+        legend: [
+            //图例
+            {
+                type: "scroll",
+                // orient: 'vertical',
+                // selectedMode: 'single',
+                data: graph.categories.map(function (a) {
+                    return a.name;
+                })
+            }
+        ],
+        animationDuration: 1500,
+        animationEasingUpdate: 'quinticInOut',
+        series: [
+            {
+                // name: '网络图',
+                type: 'graph',
+                // 布局
+                layout: 'force',
+                force: {
+                    repulsion: 5000, // 斥力
+                    gravity: 0.01, // 引力
+                    edgeLength: 40, // 边长度
+                    friction: 0.6, // 动画速度
+                },
+                // 数据
+                data: graph.nodes,
+                links: graph.edges,
+                categories: graph.categories,
+
+                roam: true, // 允许缩放和移动画布
+                draggable: true, // 节点可拖动
+                // 节点标签设置
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{b}'
+                },
+                labelLayout: {
+                    hideOverlap: true, // 重叠时隐藏标签
+                },
+                // 边默认设置
+                edgeSymbol: edgeSymbol, // 边带箭头
+                lineStyle: {
+                    color: 'source', // 边颜色
+                    curveness: 0 // 边弯曲程度
+                },
+                // 高亮设置
+                emphasis: {
+                    // 鼠标移动上去的高亮效果
+                    focus: 'adjacency',
+                    lineStyle: {
+                        width: 5
+                    }
+                }
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+
+    window.onresize = function () {
+        myChart.resize();
+    };
+
+
+    // 设置按钮展开设置选项
+    var settingButton = document.getElementById("settingButton");
+    var menu = document.getElementById("menu");
+
+    settingButton.onclick = () => {
+        if (menu.style.display === "none") {
+            menu.style.display = "flex";
+        } else {
+            menu.style.display = "none";
+        }
+
+    }
+
+    // 调整节点大小
+    var sizeBigButton = document.getElementById("sizeBigButton");
+    var sizeSmallButton = document.getElementById("sizeSmallButton");
+    sizeBigButton.onclick = () => {
+        changeSymbolSize(5);
+    }
+    sizeSmallButton.onclick = () => {
+        changeSymbolSize(-5)
+    }
+
+    function changeSymbolSize(step) {
+        graph.nodes.forEach((node) => {
+            node.symbolSize += step;
+            if (node.symbolSize < 1) {
+                node.symbolSize = 1;
+            }
+        });
+        let opt = {
+            series: {
+                data: graph.nodes,
+                // links: graph.edges
+            }
+        }
+        myChart.setOption(opt);
+    }
+
+    // 调整边的弧度
+    var edgeRadianInput = document.getElementById("edgeRadianInput");
+    edgeRadianInput.onchange = () => {
+        // alert(parseFloat(edgeRadianInput.value))
+        let opt = {
+            series: {
+                lineStyle: {
+                    curveness: parseFloat(edgeRadianInput.value) // 边弯曲程度
+                }
+            }
+
+        }
+        myChart.setOption(opt);
+    }
+
+    // 设置显示、隐藏节点标签
+    var showLabelSwitch = document.getElementById("showLabelSwitch");
+    showLabelSwitch.onchange = () => {
+        let opt = {
+            series: {
+                label: {
+                    show: showLabelSwitch.checked,
+                },
+            }
+        }
+        myChart.setOption(opt);
+    }
+
+    // 节点拖拽
+    var canDragSwitch = document.getElementById("canDragSwitch");
+    canDragSwitch.onchange = () => {
+        let opt = {
+            series: {
+                draggable: canDragSwitch.checked, // 节点可拖动
+            }
+        }
+        myChart.setOption(opt);
+    }
+
+    // 画布锁定
+    var canZoomSwitch = document.getElementById("canZoomSwitch");
+    canZoomSwitch.onchange = () => {
+        let opt = {
+            series: {
+                roam: canZoomSwitch.checked, // 允许缩放和移动画布
+            }
+        }
+        myChart.setOption(opt);
+    }
+
+    // 高亮元素
+    var canHighlightSwitch = document.getElementById("highlightSwitch");
+    canHighlightSwitch.onchange = () => {
+        let opt = {
+            series: {
+                emphasis: {
+                    // 鼠标移动上去的高亮效果
+                    disabled: !canHighlightSwitch.checked,
+                    focus: 'adjacency',
+                    lineStyle: {
+                        width: 5,
+                    }
+                }
+            }
+        }
+        myChart.setOption(opt);
+    }
+
+    // 布局设置
+    var repulsionInput = document.getElementById("repulsionInput");
+    var gravityInput = document.getElementById("gravityInput");
+    var edgeLengthInput = document.getElementById("edgeLengthInput");
+    var frictionInput = document.getElementById("frictionInput");
+
+    repulsionInput.onchange = changeLayout;
+    gravityInput.onchange = changeLayout;
+    edgeLengthInput.onchange = changeLayout;
+    frictionInput.onchange = changeLayout;
+
+    function changeLayout() {
+        let opt = {
+            series: {
+                force: {
+                    repulsion: parseInt(repulsionInput.value), // 斥力
+                    gravity: parseFloat(gravityInput.value), // 引力
+                    edgeLength: parseInt(edgeLengthInput.value), // 边长度
+                    friction: parseFloat(frictionInput.value), // 动画速度
+                },
+            }
+        }
+        myChart.setOption(opt);
+    }
+
+</script>
+</html>

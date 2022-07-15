@@ -1,0 +1,995 @@
+﻿<Window x:Class="ComplexNetworkAnalysisTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ComplexNetworkAnalysisTool"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewmodels="clr-namespace:ComplexNetworkAnalysisTool.ViewModels"
+        xmlns:converters="clr-namespace:ComplexNetworkAnalysisTool.Converters"
+        xmlns:cef="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
+        mc:Ignorable="d" Closed="MainWindow_OnClosed"
+        Title="复杂网络分析工具 v2.0 by 0x90" Height="670" Width="1100">
+    <Window.Resources>
+        <converters:FileEncodingConverter x:Key="FileEncodingConverter" />
+        <converters:MaxDataRowsConverter x:Key="MaxDataRowsConverter" />
+        <converters:BoolReverse x:Key="BoolReverse" />
+        <converters:PreProcessingProcessBarStatusConverter x:Key="PreProcessingProcessBarStatusConverter" />
+        <converters:DistanceTypeConverter x:Key="DistanceTypeConverter" />
+        <converters:Bool2IntConverter x:Key="Bool2IntConverter"></converters:Bool2IntConverter>
+
+
+    </Window.Resources>
+
+    <Grid>
+
+        <TabControl Style="{StaticResource TabControlInLine}">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="FileTable" Foreground="#ef5c50" Style="{StaticResource TabIconStyle}" />
+                        <TextBlock Text="数据读取" Style="{StaticResource TabTextStyle}" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid AllowDrop="True" Drop="UIElement_OnDrop_">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition />
+                        <RowDefinition Height="25" />
+                    </Grid.RowDefinitions>
+
+                    <hc:Card Background="#eeeeee" Margin="5 5 5 2">
+                        <DockPanel LastChildFill="True" IsEnabled="{Binding LoadingButtonEnabled}"
+                                   Margin="0">
+                            <!-- <TextBlock Text="数据集路径: " FontSize="14" VerticalAlignment="Center" Margin="5 0 0 0" /> -->
+                            <Button DockPanel.Dock="Left" Command="{Binding OpenFileDialogCommand}" ToolTip="选择文件"
+                                    Style="{StaticResource ButtonDefault}" Margin="5 0 1 0">
+                                <TextBlock Text="&#xe66c;" FontSize="18" Style="{StaticResource FIcon}" />
+
+                            </Button>
+
+
+                            <ComboBox DockPanel.Dock="Left" VerticalAlignment="Center"
+                                      SelectedItem="{Binding FileEncoding,Converter={StaticResource FileEncodingConverter},Mode=OneWayToSource}"
+                                      Style="{StaticResource ComboBoxExtend}" SelectedIndex="0" Margin="0 0 1 0">
+                                <ComboBoxItem Content="UTF-8" />
+                                <ComboBoxItem Content="GBK" />
+                                <ComboBoxItem Content="ASCII" />
+                            </ComboBox>
+
+                            <TextBox Text="{Binding FilePath}" Style="{StaticResource TextBoxExtendBaseStyle}"
+                                     ToolTip="支持csv、xls、xlsx；支持拖拽文件"
+                                     MinWidth="650" Height="27" />
+
+                            <Button DockPanel.Dock="Right" Style="{StaticResource ButtonSuccess}" Background="#ef5c50"
+                                    BorderBrush="#ef5c50"
+                                    Command="{Binding ImportDataCommand}" Content="导入数据" FontSize="13" Height="29"
+                                    Width="130"
+                                    VerticalContentAlignment="Center" Margin="10 0 5 0" />
+
+                            <ComboBox DockPanel.Dock="Right"
+                                      SelectedItem="{Binding MaxRowsNum,Converter={StaticResource MaxDataRowsConverter},Mode=OneWayToSource}"
+                                      Style="{StaticResource ComboBoxExtend}" VerticalAlignment="Center"
+                                      SelectedIndex="0"
+                                      Margin="1 0 0 0">
+                                <ComboBoxItem Content="预览100行数据" />
+                                <ComboBoxItem Content="预览1000行数据" />
+                                <ComboBoxItem Content="预览10000行数据" />
+                                <ComboBoxItem Content="预览全部数据" />
+                            </ComboBox>
+
+
+                        </DockPanel>
+                    </hc:Card>
+
+
+                    <hc:LoadingLine Grid.Row="1" Foreground="#ef5c50" Visibility="{Binding LoadingProgressBarState}"
+                                    FontSize="19" />
+
+                    <hc:Card Grid.Row="2" Background="#eeeeee" Margin="5 0 5 5">
+                        <DockPanel>
+                            <DockPanel Margin="0" DockPanel.Dock="Top" LastChildFill="False">
+
+                                <Label DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="0 0 0 0"
+                                       Style="{StaticResource LabelSuccess}" Content="数据预览" />
+
+                                <hc:ButtonGroup DockPanel.Dock="Right" VerticalAlignment="Center" Margin="0 0 2 0">
+                                    <Button IsEnabled="{Binding LoadingButtonEnabled}"
+                                            Command="{Binding GetDataReportCommand}"
+                                            FontSize="13" Content="生成数据分析报告" />
+                                    <Button Command="{Binding ButtonOpenFileLocation}"
+                                            Style="{StaticResource  ButtonSuccess}" FontSize="13"
+                                            Content="打开报告所在位置" />
+                                </hc:ButtonGroup>
+
+
+                            </DockPanel>
+                            <DataGrid DockPanel.Dock="Bottom" Margin="3 3 3 3" x:Name="DataGridDateImport"
+                                      EnableColumnVirtualization="True" EnableRowVirtualization="True"
+                                      CanUserResizeRows="True" CanUserSortColumns="True"
+                                      Visibility="Visible" ItemsSource="{Binding UserDataTable,IsAsync=True,Mode=OneWay}"
+                                      CanUserAddRows="False" IsReadOnly="True"
+                                      CanUserDeleteRows="False" />
+                        </DockPanel>
+                    </hc:Card>
+
+                    <hc:Card Grid.Row="3" Margin="5 0 5 2" Background="Transparent">
+                        <StackPanel Orientation="Horizontal">
+                            <DockPanel Margin="0 0 0 0" DockPanel.Dock="Top" LastChildFill="False">
+                                <hc:Shield DockPanel.Dock="Left" Color="#ef5c50" Margin="0 0 10 0" Subject="数据表"
+                                           Status="{Binding FileName}" />
+
+                                <hc:Shield DockPanel.Dock="Left" Color="#ef5c50" Margin="10 0 10 0" Subject="文件大小"
+                                           Status="{Binding DataTableSizeText}" />
+                                <hc:Shield DockPanel.Dock="Left" Color="#ef5c50" Margin="10 0 10 0" Subject="行数"
+                                           Status="{Binding DataTableRowNumText}" />
+
+                                <hc:Shield DockPanel.Dock="Left" Color="#ef5c50" Margin="10 0 0 0" Subject="列数"
+                                           Status="{Binding DataTableColNumText}" />
+
+                            </DockPanel>
+
+                        </StackPanel>
+                    </hc:Card>
+
+                </Grid>
+            </TabItem>
+
+            <TabItem IsEnabled="True">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="DatabaseEdit" Foreground="#9c27b0" Style="{StaticResource TabIconStyle}" />
+                        <TextBlock Text="数据预处理" Style="{StaticResource TabTextStyle}" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="280" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <hc:ScrollViewer CanMouseWheel="True">
+                        <StackPanel CanVerticallyScroll="True">
+                            <hc:Card Margin="5 5 5 0" Padding="5 5 5 5" Background="#eeeeee">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock VerticalAlignment="Center" Text="重复值处理" Margin="10" FontSize="15"
+                                                   FontWeight="Bold" />
+                                        <!-- <ToggleButton x:Name="ToggleButton1" /> -->
+                                        <WrapPanel VerticalAlignment="Center">
+                                            <CheckBox IsChecked="{Binding DataPreProcessingPage.IsDropDuplicates}"
+                                                      Content="删除重复行" Style="{StaticResource CheckBoxBaseStyle}"
+                                                      Margin="10 0 0 0" FontSize="13" />
+                                        </WrapPanel>
+                                    </StackPanel>
+
+                                </StackPanel>
+                            </hc:Card>
+                            <hc:Card Margin="5 5 5 0" Padding="5" Background="#eeeeee">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock VerticalAlignment="Center" Text="缺失值处理" Margin="10" FontSize="15"
+                                                   FontWeight="Bold" />
+                                        <!-- <ToggleButton x:Name="ToggleButton2" /> -->
+                                        <WrapPanel VerticalAlignment="Center" Margin="10 0 0 0">
+                                            <ComboBox FontSize="13"
+                                                      SelectedIndex="{Binding DataPreProcessingPage.MissingValueProcessing}">
+                                                <ComboBoxItem Content="不处理缺失值" />
+                                                <ComboBoxItem Content="删除有缺失的行" />
+                                                <ComboBoxItem Content="使用列均值填补" />
+                                                <ComboBoxItem Content="使用列中位数填补" />
+                                                <ComboBoxItem Content="使用临近值填补" />
+                                            </ComboBox>
+                                        </WrapPanel>
+
+
+                                    </StackPanel>
+
+                                    <!-- <hc:CheckComboBox x:Name="CheckComboBoxMissingValues" ShowClearButton="True" MaxWidth="380" -->
+                                    <!--                   ItemsSource="{Binding Path=DataTableColumnsName}" -->
+                                    <!--                   ShowSelectAllButton="True" /> -->
+
+
+                                </StackPanel>
+                            </hc:Card>
+                            <hc:Card Margin="5 5 5 0" Padding="5" Background="#eeeeee">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" CanHorizontallyScroll="True">
+                                        <TextBlock VerticalAlignment="Center" Text="异常值处理" Margin="10" FontSize="15"
+                                                   FontWeight="Bold" />
+                                        <!-- <ToggleButton x:Name="ToggleButton2" /> -->
+                                        <WrapPanel VerticalAlignment="Center" Margin="10 0 0 0">
+                                            <CheckBox
+                                                IsChecked="{Binding DataPreProcessingPage.IsProcessAbnormalValue}"
+                                                x:Name="CheckBox3Sigema" Style="{StaticResource CheckBoxBaseStyle}"
+                                                FontSize="13" Content="3∂法删除含异常值的行" />
+                                            <Border BorderBrush="Gray" BorderThickness="1 0 0 0" Margin="10 0 0 0" />
+                                            <TextBlock FontSize="13" Margin="10 0 10 0" VerticalAlignment="Center"
+                                                       Text="选择要检测的列" />
+
+                                            <hc:CheckComboBox
+                                                IsEnabled="{Binding ElementName=CheckBox3Sigema,Path=IsChecked}"
+                                                x:Name="CheckComboBoxAbnormalValues" ShowClearButton="True" Width="650"
+                                                Style="{StaticResource CheckComboBoxBaseStyle}"
+                                                ItemsSource="{Binding Path=DataTableColumnsName}"
+                                                ShowSelectAllButton="True" />
+
+
+                                        </WrapPanel>
+
+
+                                    </StackPanel>
+
+
+                                </StackPanel>
+                            </hc:Card>
+                            <hc:Card Margin="5 5 5 0" Padding="5" Background="#eeeeee">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" CanHorizontallyScroll="True">
+                                        <TextBlock VerticalAlignment="Center" Text="数据标准化" Margin="10" FontSize="15"
+                                                   FontWeight="Bold" />
+                                        <WrapPanel VerticalAlignment="Center" Margin="10 0 0 0">
+                                            <ComboBox SelectedIndex="{Binding DataPreProcessingPage.StandardizeData}">
+                                                <ComboBoxItem Content="不进行标准化" />
+                                                <ComboBoxItem Content="Min-Max标准化" />
+                                                <ComboBoxItem Content="标准差标准化" />
+                                            </ComboBox>
+                                            <Border BorderBrush="Gray" BorderThickness="1 0 0 0" Margin="10 0 0 0" />
+                                            <TextBlock FontSize="13" Margin="10 0 10 0" VerticalAlignment="Center"
+                                                       Text="选择要标准化的列" />
+
+                                            <hc:CheckComboBox x:Name="CheckComboBoxStandardizedData" MaxHeight="200"
+                                                              ShowClearButton="True" Width="700"
+                                                              Style="{StaticResource CheckComboBoxBaseStyle}"
+                                                              ItemsSource="{Binding Path=DataTableColumnsName}"
+                                                              ShowSelectAllButton="True" />
+
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </hc:Card>
+                            <hc:Card Margin="5 5 5 0" Padding="5" Background="#eeeeee">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" CanHorizontallyScroll="True">
+                                        <TextBlock VerticalAlignment="Center" Text="独 热 编 码" Margin="10" FontSize="15"
+                                                   FontWeight="Bold" />
+                                        <WrapPanel VerticalAlignment="Center" Margin="10 0 0 0">
+
+                                            <CheckBox IsChecked="{Binding DataPreProcessingPage.IsOntHotEncoding}"
+                                                      x:Name="CheckBoxOneHot" Content="选择要编码的列" FontSize="13"
+                                                      Style="{StaticResource CheckBoxBaseStyle}" />
+
+
+                                            <hc:CheckComboBox
+                                                x:Name="CheckComboBoxOneHot"
+                                                Margin="10 0 0 0" ShowClearButton="True" Width="800"
+                                                Height="auto"
+                                                IsEnabled="{Binding ElementName=CheckBoxOneHot,Path=IsChecked}"
+                                                Style="{StaticResource CheckComboBoxBaseStyle}"
+                                                ItemsSource="{Binding Path=DataTableColumnsName}"
+                                                ShowSelectAllButton="True" />
+
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </hc:Card>
+
+                            <!-- <ProgressBar Margin="0 5 0 0" ToolTip="正在加载数据..." Height="5" HorizontalAlignment="Stretch" -->
+                            <!--              Visibility="{Binding DataPreProcessingPage.IsOnProcessing,Converter={StaticResource PreProcessingProcessBarStatusConverter}}" -->
+                            <!--              Style="{DynamicResource MaterialDesignLinearProgressBar}" -->
+                            <!--              IsIndeterminate="True" /> -->
+                        </StackPanel>
+                    </hc:ScrollViewer>
+
+                    <hc:Card Grid.Row="1" Background="#eeeeee" Margin="5 5 5 5">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0 0 0 0" LastChildFill="False">
+                                <Label DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="0 0 0 0"
+                                       Style="{StaticResource LabelSuccess}" Content="数据预览" />
+
+                                <hc:ButtonGroup VerticalAlignment="Center" DockPanel.Dock="Right" Margin="0 0 5 0">
+                                    <Button IsEnabled="{Binding DataPreProcessingPage.SaveFileButtonEnabled}"
+                                            Command="{Binding DataPreProcessingPage.ButtonSaveFile}" Content="保存文件"
+                                            Style="{StaticResource ButtonBaseStyle}" FontSize="13.5" />
+
+                                    <Button FontSize="13.5" Style="{StaticResource ButtonBaseStyle}"
+                                            IsEnabled="{Binding DataPreProcessingPage.IsOnProcessing,Converter={StaticResource BoolReverse}}"
+                                            Command="{Binding DataPreProcessingPage.ButtonProcessCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xe647;" FontSize="17" Foreground="#FF2DB74C"
+                                                       Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" Text="数据处理" />
+                                        </StackPanel>
+
+                                    </Button>
+                                    <Button FontSize="13.5"
+                                            IsEnabled="{Binding DataPreProcessingPage.IsOnProcessing}"
+                                            Command="{Binding DataPreProcessingPage.ButtonCancelCommand}">
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xe642;" FontSize="15" FontWeight="Bold" Foreground="Red"
+                                                       Style="{StaticResource FIcon}" />
+                                            <TextBlock Text="取消" Margin="10 0 0 0" FontSize="13.5"
+                                                       Style="{StaticResource FIcon}" />
+
+                                        </StackPanel>
+                                    </Button>
+
+
+                                </hc:ButtonGroup>
+
+                                <hc:LoadingLine Foreground="BlueViolet" DockPanel.Dock="Right" Width="750"
+                                                Visibility="{Binding DataPreProcessingPage.IsOnProcessing,Converter={StaticResource PreProcessingProcessBarStatusConverter}}" />
+
+                            </DockPanel>
+                            <DataGrid Margin="5 1 5 5" CanUserResizeRows="True" CanUserSortColumns="True"
+                                      EnableColumnVirtualization="True" EnableRowVirtualization="True"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      ItemsSource="{Binding DataPreProcessingPage.ProcessedDataTable,IsAsync=True,Mode=OneWay}" />
+                        </DockPanel>
+
+                    </hc:Card>
+
+
+                </Grid>
+
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="AccountSwitch" Foreground="#43a047" Style="{StaticResource TabIconStyle}" />
+                        <TextBlock Text="距离计算" Style="{StaticResource TabTextStyle}" />
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="1.1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="50" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0">
+                            <hc:Card Margin="5 5 10 0" Padding="5 5 5 5" Background="#eeeeee">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock VerticalAlignment="Center" Text="选取用于显示的节点标签" Margin="10"
+                                                   FontSize="15"
+                                                   FontWeight="Bold" />
+
+                                        <ComboBox SelectedItem="{Binding SimilarityCalculationModel.Label}"
+                                                  SelectedIndex="0" FontSize="13"
+                                                  IsEnabled="{Binding ElementName=CheckBoxCreateIndexColumn,Path=IsChecked,Converter={StaticResource BoolReverse}}"
+                                                  Margin="10 0 0 0" ItemsSource="{Binding DataTableColumnsName}" />
+
+                                        <CheckBox IsChecked="{Binding SimilarityCalculationModel.IsCreateIndexColumn}"
+                                                  x:Name="CheckBoxCreateIndexColumn"
+                                                  Style="{StaticResource CheckBoxBaseStyle}" Margin="20 0 0 0"
+                                                  Content="创建序号列作为主键" FontSize="13" Visibility="Hidden" />
+                                    </StackPanel>
+
+
+                                </StackPanel>
+                            </hc:Card>
+                            <hc:Card Margin="5 5 10 0" Padding="5 5 5 5" Background="#eeeeee">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock VerticalAlignment="Center" Text="选取用于计算相似度的列(数值类型)" Margin="10"
+                                               FontSize="15"
+                                               FontWeight="Bold" />
+                                    <hc:CheckComboBox x:Name="CheckComboBoxSimilarityCalculation" Margin="10 0 5 5"
+                                                      ShowClearButton="True"
+                                                      Style="{StaticResource CheckComboBoxBaseStyle}"
+                                                      ItemsSource="{Binding Path=DataTableColumnsName}"
+                                                      ShowSelectAllButton="True" />
+                                </StackPanel>
+                            </hc:Card>
+                            <hc:Card Margin="5 5 10 5" Padding="5 5 5 5" Background="#eeeeee">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock VerticalAlignment="Center" Text="筛选数据" Margin="10" FontSize="15"
+                                                   FontWeight="Bold" />
+
+                                        <hc:SearchBar
+                                            CommandParameter="{Binding Text,RelativeSource={RelativeSource Self}}"
+                                            IsEnabled="{Binding SimilarityCalculationModel.IsButtonEnabled}"
+                                            Command="{Binding SimilarityCalculationModel.SearchCommand}"
+                                            Text="{Binding SimilarityCalculationModel.SearchPattern}" Height="27"
+                                            Width="693" ToolTip="SQL格式条件语句，为空则选中全部数据 (例如：key>10 and key%3=0)"
+                                            TextAlignment="Center" />
+
+                                        <!-- <TextBox md:HintAssist.Hint="SQL格式条件语句，为空则选中全部数据 (例如：key>10 and key%3=0)" -->
+                                        <!--          FontSize="13" -->
+                                        <!--          Text="{Binding SimilarityCalculationModel.SearchPattern}" Width="540" -->
+                                        <!--          Margin="10 5 5 5" TextAlignment="Center" /> -->
+                                        <!-- -->
+                                        <!-- <Button IsEnabled="{Binding SimilarityCalculationModel.IsButtonEnabled}" -->
+                                        <!--         Content="筛选数据" Width="130" Height="33" -->
+                                        <!--         Command="{Binding SimilarityCalculationModel.SearchCommand}" /> -->
+                                    </StackPanel>
+
+                                    <DataGrid CanUserAddRows="False" Height="350" Grid.Row="1" Margin="10 0 8 5"
+                                              EnableColumnVirtualization="True" EnableRowVirtualization="True"
+                                              CanUserSortColumns="True"
+                                              ItemsSource="{Binding SimilarityCalculationModel.DataTableFilter,IsAsync=True,Mode=OneWay}" />
+
+                                </Grid>
+
+                            </hc:Card>
+                        </StackPanel>
+
+
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+
+                            <Border Height="33" BorderThickness="1" CornerRadius="5" BorderBrush="#43a047">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="已选数据行数:" Margin="10 0 10 0" FontSize="14"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Foreground="Red" VerticalAlignment="Center"
+                                               Text="{Binding SimilarityCalculationModel.DtFilterRowCount}"
+                                               FontSize="14" />
+                                    <TextBlock Text="距离计算方法:" VerticalAlignment="Center" Margin="10 0 5 0"
+                                               FontSize="14" />
+                                    <ComboBox VerticalContentAlignment="Center"
+                                              SelectedItem="{Binding SimilarityCalculationModel.DistanceType,Converter={StaticResource DistanceTypeConverter},Mode=OneWayToSource}"
+                                              Foreground="Red" Margin="0 0 5 0" FontSize="14" SelectedIndex="0">
+                                        <ComboBoxItem Content="欧氏距离 euclidean" />
+                                        <ComboBoxItem Content="标准化欧式距离 seuclidean" />
+                                        <ComboBoxItem Content="哈曼顿距离 cityblock" />
+                                        <ComboBoxItem Content="余弦距离 1-cosine" />
+                                        <ComboBoxItem Content="相关系数距离 1-correlation" />
+                                        <ComboBoxItem Content="杰卡德距离 jaccard" />
+                                        <ComboBoxItem Content="Bray-Curtis距离 braycurtis" />
+                                        <ComboBoxItem Content="马氏距离 mahalanobis" />
+                                        <ComboBoxItem Content="杰卡德距离 jaccard" />
+
+
+                                        <!-- <ComboBoxItem Content="余弦相似度"></ComboBoxItem> -->
+                                        <!-- <ComboBoxItem Content="皮尔森相关系数"></ComboBoxItem> -->
+
+                                    </ComboBox>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- <hc:LoadingCircle Margin="2" Visibility="Visible"></hc:LoadingCircle>     -->
+
+                            <Button FontSize="14" IsEnabled="{Binding SimilarityCalculationModel.IsButtonEnabled}"
+                                    Style="{StaticResource ButtonSuccess}"
+                                    Command="{Binding SimilarityCalculationModel.DistanceCalculateCommand}"
+                                    Content="计算距离" Background="#43a047" BorderBrush="#43a047" Height="33" Width="130"
+                                    Margin="10 0 5 0" />
+
+                            <Button FontSize="14"
+                                    IsEnabled="{Binding SimilarityCalculationModel.IsButtonEnabled,Converter={StaticResource BoolReverse}}"
+                                    Style="{StaticResource ButtonSuccess}"
+                                    Command="{Binding SimilarityCalculationModel.CalculateCancelCommand}"
+                                    Content="取消" Background="#ef5350" BorderBrush="#ef5350" Height="33"
+                                    Margin="0 0 10 0" />
+                        </StackPanel>
+
+                    </Grid>
+
+                    <hc:Card Grid.Column="1" Background="#eeeeee" Margin="0 5 3 5">
+                        <Grid Margin="5 5 5 0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="20" />
+
+                            </Grid.RowDefinitions>
+                            <DataGrid Grid.Row="0" Margin="2" EnableColumnVirtualization="True"
+                                      EnableRowVirtualization="True"
+                                      ItemsSource="{Binding SimilarityCalculationModel.DataTableDistanceFilter,IsAsync=True,Mode=OneWay}" />
+                            <Grid Grid.Row="1">
+                                <DockPanel LastChildFill="False">
+                                    <hc:SearchBar Width="275" DockPanel.Dock="Left"
+                                                  CommandParameter="{Binding Text,RelativeSource={RelativeSource Self}}"
+                                                  Command="{Binding SimilarityCalculationModel.DtDistanceSearchCommand}"
+                                                  Text="{Binding SimilarityCalculationModel.SearchPatternDistance}"
+                                                  IsEnabled="{Binding SimilarityCalculationModel.IsButtonEnabled}"
+                                                  Height="27" />
+                                    <!-- <TextBox Text="{Binding SimilarityCalculationModel.SearchPatternDistance}" Margin="2" -->
+                                    <!--          ToolTip="SQL格式筛选" Width="200" -->
+                                    <!--          Style="{StaticResource TextBoxBaseBaseStyle}" TextWrapping="Wrap" /> -->
+                                    <!-- <Button IsEnabled="{Binding SimilarityCalculationModel.IsButtonEnabled}" -->
+                                    <!--         Command="{Binding SimilarityCalculationModel.DtDistanceSearchCommand}" -->
+                                    <!--         Content="筛选" Margin="5 0 0 0" /> -->
+
+                                    <!-- <Button Style="{StaticResource ButtonCustom}" Width="30" DockPanel.Dock="Right"> -->
+                                    <!--     <TextBlock Text="&#xe628;" FontSize="17" ToolTip="保存文件" -->
+                                    <!--                Style="{StaticResource FIcon}" /> -->
+                                    <!-- </Button> -->
+                                </DockPanel>
+
+                            </Grid>
+                            <Border Grid.Row="2" Background="#eeeeee">
+                                <DockPanel>
+                                    <TextBlock Margin="3 0 0 0" FontSize="13" Text="数据行数：" VerticalAlignment="Center" />
+                                    <TextBlock FontSize="13" Foreground="Red"
+                                               Text="{Binding SimilarityCalculationModel.DtDistRowCount}"
+                                               VerticalAlignment="Center" />
+
+
+                                </DockPanel>
+                            </Border>
+
+                        </Grid>
+                    </hc:Card>
+
+
+                </Grid>
+
+            </TabItem>
+
+
+            <TabItem IsSelected="{Binding GraphVisViewModel.IsPageSelected}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="ChartBubble" Foreground="#fb8c00" Style="{StaticResource TabIconStyle}" />
+                        <TextBlock Text="网络结构可视化" Style="{StaticResource TabTextStyle}" />
+                    </StackPanel>
+                </TabItem.Header>
+
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="240" />
+                    </Grid.ColumnDefinitions>
+
+                    <hc:Card Background="#eeeeee" Margin="5">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+                                <Label HorizontalAlignment="Left" Content="网络拓扑图" Margin="0 -5 0 0"
+                                       Style="{StaticResource LabelInfo}" />
+                                <hc:ButtonGroup DockPanel.Dock="Right" Margin="0 0 3 0" VerticalAlignment="Center">
+
+                                    <Button Command="{Binding GraphVisViewModel.OpenFileLocationCommand}">
+                                        <TextBlock Text="&#xe628;" FontSize="17" ToolTip="保存文件"
+                                                   Style="{StaticResource FIcon}" />
+                                    </Button>
+
+                                    <!-- <Button Command="{Binding GraphVisViewModel.OpenFileInBrowserCommand}"> -->
+                                    <!--     <TextBlock Text="&#xe611;" FontSize="17" ToolTip="在浏览器打开" -->
+                                    <!--                Style="{StaticResource FIcon}" /> -->
+                                    <!-- </Button> -->
+
+                                    <Button IsEnabled="{Binding ElementName=Browser,Path=CanGoBack}"
+                                            Style="{StaticResource ButtonGroupItemDefault}"
+                                            VerticalContentAlignment="Center" VerticalAlignment="Center"
+                                            HorizontalAlignment="Center" HorizontalContentAlignment="Center"
+                                            Command="{Binding GraphVisViewModel.BrowserGoBackCommand}">
+
+                                        <TextBlock Text="&#xe726;" FontSize="17" ToolTip="后退"
+                                                   Style="{StaticResource FIcon}" />
+
+                                    </Button>
+                                    <Button IsEnabled="{Binding ElementName=Browser,Path=CanGoForward}"
+                                            VerticalContentAlignment="Center" VerticalAlignment="Center"
+                                            Command="{Binding GraphVisViewModel.BrowserGoForwardCommand}">
+                                        <TextBlock ToolTip="前进" Text="&#xe87e;" FontSize="17"
+                                                   Style="{StaticResource FIcon}" />
+
+
+                                    </Button>
+
+                                </hc:ButtonGroup>
+                            </DockPanel>
+                            <cef:ChromiumWebBrowser Margin="5" x:Name="Browser"
+                                                    Address="{Binding GraphVisViewModel.BrowserAddress}" />
+
+                        </DockPanel>
+                    </hc:Card>
+
+                    <hc:ScrollViewer Grid.Column="1" CanMouseWheel="True">
+                        <Grid Grid.Column="1" IsEnabled="{Binding GraphVisViewModel.IsUiEnabled}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+
+                            </Grid.RowDefinitions>
+
+                            <Expander Grid.Row="0" Background="#eeeeee" Margin="5" IsExpanded="True">
+                                <Expander.Header>
+                                    <Label HorizontalAlignment="Left" Width="130" Content="数据表" Margin="0 0 0 0"
+                                           Style="{StaticResource LabelWarning}" />
+                                </Expander.Header>
+
+                                <StackPanel>
+                                    <Button MinWidth="220" Style="{StaticResource ButtonDefault}" Margin="0 0 0 0"
+                                            HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ShowDataTableCommand}">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe66c;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" VerticalAlignment="Center"
+                                                       Text="查看数据表" />
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button MinWidth="220" Style="{StaticResource ButtonDefault}" Margin="0 0 0 0"
+                                            HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ImportDataTableCommand}">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe66c;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" VerticalAlignment="Center"
+                                                       Text="导入数据表" />
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button MinWidth="220" Style="{StaticResource ButtonDefault}" Margin="0 0 0 5"
+                                            HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ExportGraphML}">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe66c;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" VerticalAlignment="Center"
+                                                       Text="导出GraphML图文件" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+
+                            </Expander>
+
+                            <Expander Grid.Row="1" Background="#eeeeee" Margin="5" IsExpanded="{Binding GraphVisViewModel.IsGraphInfoExpand}" >
+                                <Expander.Header>
+                                    <Label HorizontalAlignment="Left" Width="130" Content="网络描述" Margin="0 0 0 0"
+                                           Style="{StaticResource LabelPrimary}" />
+                                </Expander.Header>
+
+
+                                <Grid Margin="7 0 0 0">
+                                    <StackPanel Margin="0 0 0 5">
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock Text="图类型：" FontSize="14" />
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding GraphVisViewModel.GraphModel.IsDirected}" FontSize="14" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock Text="节点数：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.VertexCount}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock Text="连边数：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.EdgeCount}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 10 20 2">
+                                            <TextBlock Text="平均度：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.AvgDegree}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock Text="最大度：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.MaxDegree}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 10 20 2">
+                                            <TextBlock Text="平均路经长：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.AvgPathLen}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock Text="网络直径：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.Diameter}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 10 20 2">
+                                            <TextBlock Text="图密度：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.Density}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock Text="聚集系数：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.ClusteringCoefficient}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock Text="团数量：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding GraphVisViewModel.GraphModel.CliqueCount}"
+                                                       FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 10 20 2">
+                                            <TextBlock VerticalAlignment="Center" Text="节点度：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <Button Style="{StaticResource ButtonDefault}" DockPanel.Dock="Right"
+                                                    HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ShowDegreeDistribution}">
+                                                <TextBlock Text="&#xe647;" FontSize="17"
+                                                           Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            </Button>
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock VerticalAlignment="Center" Text="介数中心性：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <Button Style="{StaticResource ButtonDefault}" DockPanel.Dock="Right"
+                                                    HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ShowDataTableCommand}">
+                                                <TextBlock Text="&#xe647;" FontSize="17"
+                                                           Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            </Button>
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="3 2 20 2">
+                                            <TextBlock VerticalAlignment="Center" Text="紧密中心性：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <Button Style="{StaticResource ButtonDefault}" DockPanel.Dock="Right"
+                                                    HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ShowDataTableCommand}">
+                                                <TextBlock Text="&#xe647;" FontSize="17"
+                                                           Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            </Button>
+                                        </DockPanel>
+
+                                    </StackPanel>
+
+                                </Grid>
+
+                            </Expander>
+
+                            <Expander Grid.Row="2" Background="#eeeeee" Margin="5" IsExpanded="False">
+                                <Expander.Header>
+                                    <Label DockPanel.Dock="Top" Width="130" HorizontalAlignment="Left" Content="社团发现"
+                                           Margin="0 0 0 0"
+                                           Style="{StaticResource LabelSuccess}" />
+                                </Expander.Header>
+
+
+                                <UniformGrid Rows="6" Margin="0 0 0 5">
+
+                                    <Button MinWidth="220" Style="{StaticResource ButtonDefault}"
+                                            HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.CommunityDetectionCommand}" 
+                                            CommandParameter="WalkTrap">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe647;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" VerticalAlignment="Center"
+                                                       Text="WalkTrap" />
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Width="220" Style="{StaticResource ButtonDefault}" Command="{Binding GraphVisViewModel.CommunityDetectionCommand}" 
+                                            HorizontalContentAlignment="Left" 
+                                            CommandParameter="LabelPropagation">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe647;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" Text="LabelPropagation" />
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Width="220" Style="{StaticResource ButtonDefault}" Command="{Binding GraphVisViewModel.CommunityDetectionCommand}" 
+                                            HorizontalContentAlignment="Left"
+                                            CommandParameter="MultiLevel">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe647;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" Text="MultiLevel" />
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Width="220" Style="{StaticResource ButtonDefault}" Command="{Binding GraphVisViewModel.CommunityDetectionCommand}" 
+                                            HorizontalContentAlignment="Left"
+                                            CommandParameter="SpinGlass">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe647;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" Text="SpinGlass" />
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Width="220" Style="{StaticResource ButtonDefault}" Command="{Binding GraphVisViewModel.CommunityDetectionCommand}" 
+                                            HorizontalContentAlignment="Left"
+                                            CommandParameter="FastGreedy">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe647;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" Text="FastGreedy" />
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Width="220" Style="{StaticResource ButtonDefault}" Command="{Binding GraphVisViewModel.CommunityDetectionCommand}" 
+                                            HorizontalContentAlignment="Left"
+                                            CommandParameter="EdgeBetweenness">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Margin="5 0 0 0" Text="&#xe647;" FontSize="17"
+                                                       Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                            <TextBlock Margin="10 0 0 0" FontSize="13" Text="EdgeBetweenness" />
+                                        </StackPanel>
+                                    </Button>
+
+                                </UniformGrid>
+
+                            </Expander>
+
+                            <Expander Grid.Row="3" Background="#eeeeee" Margin="5" IsExpanded="False">
+                                <Expander.Header>
+                                    <Label DockPanel.Dock="Top" Width="130" HorizontalAlignment="Left" Content="最短路径"
+                                           Margin="0 0 0 0"
+                                           Style="{StaticResource LabelInfo}" />
+                                </Expander.Header>
+
+                                <Grid Margin="0 0 0 5">
+                                    <StackPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="10 10 10 0">
+                                            <TextBlock Text="起始节点ID：" FontSize="14" FontFamily="微软雅黑" />
+                                            <TextBox Text="{Binding GraphVisViewModel.StartId}" HorizontalContentAlignment="Center" PreviewTextInput="UIElement_OnPreviewTextInput" FontSize="13" InputMethod.IsInputMethodEnabled="False" DockPanel.Dock="Right" Width="50"></TextBox>
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="10 0 10 0">
+                                            <TextBlock VerticalAlignment="Center" Text="目标节点ID：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <TextBox Text="{Binding GraphVisViewModel.EndId}" HorizontalContentAlignment="Center" PreviewTextInput="UIElement_OnPreviewTextInput" FontSize="13" InputMethod.IsInputMethodEnabled="False" DockPanel.Dock="Right" Width="50"></TextBox>
+
+                                        </DockPanel>
+
+
+                                        <Button Margin="0 10 0 5" FontSize="13" Width="220"
+                                                Style="{StaticResource ButtonDefault}"
+                                                Command="{Binding GraphVisViewModel.GetShortestPathCommand}"
+                                                >
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Margin="5 0 5 0" Text="&#xe647;" FontSize="17"
+                                                           Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                                                <TextBlock Text="搜索最短路径" FontSize="14" />
+                                            </StackPanel>
+                                        </Button>
+
+
+                                    </StackPanel>
+                                </Grid>
+
+                            </Expander>
+
+                            <Expander Grid.Row="4" Background="#eeeeee" Margin="5" IsExpanded="True">
+                                <Expander.Header>
+                                    <Label DockPanel.Dock="Top" Width="130" HorizontalAlignment="Left" Content="生成网络"
+                                           Margin="0 0 0 0"
+                                           Style="{StaticResource LabelDanger}" />
+                                </Expander.Header>
+
+
+                                <Grid Margin="0 0 0 5">
+                                    <StackPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="10 10 10 0">
+                                            <TextBlock Text="生成可交互网络图：" FontSize="14" FontFamily="微软雅黑" />
+                                            <ToggleButton x:Name="ToggleButtonIsHtml" DockPanel.Dock="Right"
+                                                          IsChecked="{Binding GraphVisViewModel.IsHtml,Converter={StaticResource Bool2IntConverter}}" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="10 5 10 0">
+                                            <TextBlock VerticalAlignment="Center" Text="节点大小：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <ComboBox DockPanel.Dock="Right" MinWidth="50" FontSize="13"
+                                                      HorizontalContentAlignment="Center" SelectedIndex="1" SelectedItem="{Binding GraphVisViewModel.VertexSize}"
+                                                      ItemsSource="{Binding GraphVisViewModel.VertexSizeBindingList}" />
+                                        </DockPanel>
+                                        <DockPanel LastChildFill="False" Margin="10 0 10 0">
+                                            <TextBlock VerticalAlignment="Center" Text="节点颜色：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <Button Command="{Binding GraphVisViewModel.ShowColorPickerCommand}" Style="{StaticResource ButtonBaseStyle}" DockPanel.Dock="Right" Width="20" Height="20" Margin="5 5 0 5" Background="{Binding GraphVisViewModel.ColorPickerColor}" Visibility="{Binding GraphVisViewModel.IsColorPickerShow}"></Button>
+                                            <ComboBox DockPanel.Dock="Right" MinWidth="50" FontSize="13"
+                                                      HorizontalContentAlignment="Center" SelectedIndex="1" SelectedItem="{Binding GraphVisViewModel.VertexColor}"
+                                                      ItemsSource="{Binding GraphVisViewModel.VertexColorBindingList}" />
+                                        </DockPanel>
+                                        <DockPanel LastChildFill="False" Margin="10 0 10 0">
+                                            <TextBlock VerticalAlignment="Center" Text="节点标签：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <ComboBox DockPanel.Dock="Right" MinWidth="50" FontSize="13" SelectedIndex="0"
+                                                      HorizontalContentAlignment="Center" SelectedItem="{Binding GraphVisViewModel.VertexLabel}"
+                                                      ItemsSource="{Binding GraphVisViewModel.VertexLabelBindingList}" />
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="10 0 10 0">
+                                            <TextBlock VerticalAlignment="Center" Text="节点形状：" FontSize="14" FontFamily="微软雅黑" />
+                                            <ComboBox DockPanel.Dock="Right" MinWidth="50" FontSize="13" HorizontalContentAlignment="Center" SelectedIndex="0"
+                                                      SelectedItem="{Binding GraphVisViewModel.VertexShape,Mode=OneWayToSource}">
+                                                <ComboBoxItem>圆形 circle</ComboBoxItem>
+                                                <ComboBoxItem>三角 triangle</ComboBoxItem>
+                                                <ComboBoxItem>矩形 rect</ComboBoxItem>
+                                                <ComboBoxItem>菱形 diamond</ComboBoxItem>
+
+                                            </ComboBox>
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="10 0 10 0">
+                                            <TextBlock VerticalAlignment="Center" Text="边权重：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <ComboBox DockPanel.Dock="Right" MinWidth="50" FontSize="13" SelectedItem="{Binding GraphVisViewModel.EdgeWeight}"
+                                                      HorizontalContentAlignment="Center" SelectedIndex="0" ItemsSource="{Binding GraphVisViewModel.EdgeWeightBindingList}">
+
+
+                                            </ComboBox>
+                                        </DockPanel>
+
+                                        <DockPanel LastChildFill="False" Margin="10 0 10 0"
+                                                   IsEnabled="{Binding ElementName=ToggleButtonIsHtml,Path=IsChecked,Converter={StaticResource Boolean2BooleanReConverter}}">
+                                            <TextBlock VerticalAlignment="Center" Text="布局：" FontSize="14"
+                                                       FontFamily="微软雅黑" />
+                                            <ComboBox DockPanel.Dock="Right" MinWidth="50" FontSize="13" SelectedItem="{Binding GraphVisViewModel.Layout}"
+                                                      HorizontalContentAlignment="Center" SelectedIndex="0">
+                                                <ComboBoxItem>kk</ComboBoxItem>
+                                                <ComboBoxItem>circle</ComboBoxItem>
+                                                <ComboBoxItem>drl</ComboBoxItem>
+                                                <ComboBoxItem>fr</ComboBoxItem>
+                                                <ComboBoxItem>grid_fr</ComboBoxItem>
+                                                <ComboBoxItem>lgl</ComboBoxItem>
+                                                <ComboBoxItem>random</ComboBoxItem>
+                                                <ComboBoxItem>rt</ComboBoxItem>
+                                                <ComboBoxItem>rt_circular</ComboBoxItem>
+                                                <ComboBoxItem>sphere</ComboBoxItem>
+                                            </ComboBox>
+                                        </DockPanel>
+
+                                        <Button Margin="0 10 0 5" FontSize="13" Width="220"
+                                                Style="{StaticResource ButtonDefault}"
+                                                Command="{Binding GraphVisViewModel.GenerateNetworkCommand}"
+                                                >
+                                            <StackPanel Orientation="Horizontal">
+                                                <md:PackIcon Margin="0 2 0 0" Kind="ChartBubble" Foreground="#fb8c00" />
+                                                <TextBlock Text="生成可视化网络" FontSize="14" />
+                                            </StackPanel>
+                                        </Button>
+
+
+                                    </StackPanel>
+                                </Grid>
+
+                            </Expander>
+
+
+                        </Grid>
+                    </hc:ScrollViewer>
+
+
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+
+    </Grid>
+</Window>

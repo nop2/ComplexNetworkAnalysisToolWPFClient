@@ -1,0 +1,268 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "422239",
+      "name": "居乐乐 取消",
+      "font_class": "quxiao",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "722172",
+      "name": "arrow-right",
+      "font_class": "previewright",
+      "unicode": "e75c",
+      "unicode_decimal": 59228
+    },
+    {
+      "icon_id": "788020",
+      "name": "取消",
+      "font_class": "quxiao1",
+      "unicode": "e642",
+      "unicode_decimal": 58946
+    },
+    {
+      "icon_id": "868549",
+      "name": "大数据处理",
+      "font_class": "yidongyunkongzhitaiicon58",
+      "unicode": "e74d",
+      "unicode_decimal": 59213
+    },
+    {
+      "icon_id": "1029205",
+      "name": "下载",
+      "font_class": "download-1-copy",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "1170589",
+      "name": "play",
+      "font_class": "play",
+      "unicode": "e647",
+      "unicode_decimal": 58951
+    },
+    {
+      "icon_id": "1389605",
+      "name": "color",
+      "font_class": "color",
+      "unicode": "e760",
+      "unicode_decimal": 59232
+    },
+    {
+      "icon_id": "1509738",
+      "name": "取消",
+      "font_class": "cancel",
+      "unicode": "e664",
+      "unicode_decimal": 58980
+    },
+    {
+      "icon_id": "1986972",
+      "name": "曲线",
+      "font_class": "quxian",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "3547523",
+      "name": "color",
+      "font_class": "color1",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "4553750",
+      "name": "在浏览器打开",
+      "font_class": "zailiulanqidakai",
+      "unicode": "e7e3",
+      "unicode_decimal": 59363
+    },
+    {
+      "icon_id": "4579830",
+      "name": "arrow-left",
+      "font_class": "arrowleft",
+      "unicode": "e948",
+      "unicode_decimal": 59720
+    },
+    {
+      "icon_id": "5077369",
+      "name": "下载",
+      "font_class": "xiazai",
+      "unicode": "e63e",
+      "unicode_decimal": 58942
+    },
+    {
+      "icon_id": "5318189",
+      "name": "节点",
+      "font_class": "jiedian",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "6151133",
+      "name": "file plus-fill",
+      "font_class": "fileplus-fill",
+      "unicode": "e7c6",
+      "unicode_decimal": 59334
+    },
+    {
+      "icon_id": "6172034",
+      "name": "待处理",
+      "font_class": "daichuli",
+      "unicode": "e62b",
+      "unicode_decimal": 58923
+    },
+    {
+      "icon_id": "7684998",
+      "name": "back",
+      "font_class": "back",
+      "unicode": "e6db",
+      "unicode_decimal": 59099
+    },
+    {
+      "icon_id": "8875693",
+      "name": "取消",
+      "font_class": "quxiao2",
+      "unicode": "e667",
+      "unicode_decimal": 58983
+    },
+    {
+      "icon_id": "10024800",
+      "name": "处理",
+      "font_class": "deal01",
+      "unicode": "e72c",
+      "unicode_decimal": 59180
+    },
+    {
+      "icon_id": "10592969",
+      "name": "曲线-图形对象_jurassic",
+      "font_class": "jurassic_curve",
+      "unicode": "e694",
+      "unicode_decimal": 59028
+    },
+    {
+      "icon_id": "10909304",
+      "name": "arrow-left",
+      "font_class": "arrow-left",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "11968725",
+      "name": "file",
+      "font_class": "file",
+      "unicode": "e643",
+      "unicode_decimal": 58947
+    },
+    {
+      "icon_id": "13660528",
+      "name": "Color Lens",
+      "font_class": "ColorLens",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "14055546",
+      "name": "浏览器",
+      "font_class": "liulanqi",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "14465076",
+      "name": "file",
+      "font_class": "file1",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "15748290",
+      "name": "arrow-right",
+      "font_class": "arrow-right",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "15903353",
+      "name": "下载",
+      "font_class": "xiazai1",
+      "unicode": "e628",
+      "unicode_decimal": 58920
+    },
+    {
+      "icon_id": "17408086",
+      "name": "保存",
+      "font_class": "baocun",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "18365417",
+      "name": "play",
+      "font_class": "play1",
+      "unicode": "e66e",
+      "unicode_decimal": 58990
+    },
+    {
+      "icon_id": "18977828",
+      "name": "arrow-left",
+      "font_class": "arrow-left1",
+      "unicode": "e726",
+      "unicode_decimal": 59174
+    },
+    {
+      "icon_id": "19030073",
+      "name": "Arrow - Right",
+      "font_class": "Arrow-Right",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "19030075",
+      "name": "Arrow - Left",
+      "font_class": "Arrow-Left",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "19060811",
+      "name": "arrow-right",
+      "font_class": "arrow-right1",
+      "unicode": "e87e",
+      "unicode_decimal": 59518
+    },
+    {
+      "icon_id": "19447834",
+      "name": "谷歌浏览器",
+      "font_class": "chrome-fill",
+      "unicode": "eaaa",
+      "unicode_decimal": 60074
+    },
+    {
+      "icon_id": "19457226",
+      "name": "file",
+      "font_class": "wenjianshangchuan",
+      "unicode": "e6af",
+      "unicode_decimal": 59055
+    },
+    {
+      "icon_id": "20032523",
+      "name": "节点状态",
+      "font_class": "jiedianzhuangtai",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "20131473",
+      "name": "保存",
+      "font_class": "baocun1",
+      "unicode": "e692",
+      "unicode_decimal": 59026
+    }
+  ]
+}

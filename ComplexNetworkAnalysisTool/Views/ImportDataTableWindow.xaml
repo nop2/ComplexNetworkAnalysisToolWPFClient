@@ -1,0 +1,80 @@
+﻿<Window x:Class="ComplexNetworkAnalysisTool.Views.ImportDataTableWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:ComplexNetworkAnalysisTool.Views"
+        mc:Ignorable="d"
+        Title="数据表导入" Height="220" Width="600" WindowStartupLocation="CenterScreen">
+
+        
+    <Grid x:Name="Grid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+
+            <RowDefinition></RowDefinition>
+
+        </Grid.RowDefinitions>
+
+        <TextBlock Margin="5" Grid.Row="0" Text="至少导入一个边数据表，并且前两列数据必须为source和target，节点表第一列必须为id"></TextBlock>
+        
+        <DockPanel Margin="5" Grid.Row="1" >
+            <Button Width="130" Click="ButtonVertex_OnClick" VerticalAlignment="Center" VerticalContentAlignment="Center" DockPanel.Dock="Left" Style="{StaticResource ButtonDefault}" Margin="0 0 0 0"
+                    HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ShowDataTableCommand}">
+                <StackPanel  Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Margin="0 0 0 0" Text="&#xe66c;" FontSize="17"
+                               Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                    <TextBlock Margin="10 0 0 0" FontSize="13" VerticalAlignment="Center"
+                               Text="选择节点数据" />
+                </StackPanel>
+
+            </Button>
+
+            <TextBox x:Name="VertexPathTextBox" Margin="5 0 0 0" Style="{StaticResource TextBoxExtendBaseStyle}"></TextBox>
+        </DockPanel>
+
+        <DockPanel Margin="5" Grid.Row="2" >
+            <Button Width="130" Click="ButtonEdge_OnClick" VerticalAlignment="Center" VerticalContentAlignment="Center" DockPanel.Dock="Left" Style="{StaticResource ButtonDefault}" Margin="0 0 0 0"
+                    HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ShowDataTableCommand}">
+                <StackPanel  Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Margin="0 0 0 0" Text="&#xe66c;" FontSize="17"
+                               Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                    <TextBlock Margin="10 0 0 0" FontSize="13" VerticalAlignment="Center"
+                               Text="选择边数据" />
+                </StackPanel>
+
+            </Button>
+
+            <TextBox x:Name="EdgePathTextBox" Margin="5 0 0 0" Style="{StaticResource TextBoxExtendBaseStyle}"></TextBox>
+        </DockPanel>
+
+        <DockPanel Margin="5" Grid.Row="3" IsEnabled="{Binding ElementName=IsOverlayCheck,Path=IsChecked}">
+            <Button Width="130" Click="ButtonRelate_OnClick" VerticalAlignment="Center" VerticalContentAlignment="Center" DockPanel.Dock="Left" Style="{StaticResource ButtonDefault}" Margin="0 0 0 0"
+                    HorizontalContentAlignment="Left" Command="{Binding GraphVisViewModel.ShowDataTableCommand}">
+                <StackPanel  Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Margin="0 0 0 0" Text="&#xe66c;" FontSize="17"
+                               Foreground="#FF2DB74C" Style="{StaticResource FIcon}" />
+                    <TextBlock Margin="10 0 0 0" FontSize="13" VerticalAlignment="Center"
+                               Text="网络关系数据" />
+                </StackPanel>
+
+            </Button>
+
+            <TextBox x:Name="RelatePathTextBox" Margin="5 0 0 0" Style="{StaticResource TextBoxExtendBaseStyle}"></TextBox>
+        </DockPanel>
+        
+        <DockPanel Grid.Row="4" LastChildFill="False" >
+            <Button Click="ButtonImport_OnClick" DockPanel.Dock="Right" Width="100" Margin="5" FontSize="14" Style="{StaticResource ButtonSuccess}" Content="导入数据"></Button>
+
+            <CheckBox Style="{StaticResource CheckBoxBaseStyle}" x:Name="IsDirectedCheck" Margin="0 0 10 0" VerticalAlignment="Center" VerticalContentAlignment="Center" DockPanel.Dock="Right" Content="有向图" FontSize="14"></CheckBox>
+            <!-- <CheckBox Style="{StaticResource CheckBoxBaseStyle}" x:Name="RemoveRepeatEdge" Margin="0 0 10 0" VerticalAlignment="Center" VerticalContentAlignment="Center" DockPanel.Dock="Right" Content="去除重复边" FontSize="14"></CheckBox> -->
+            <CheckBox Style="{StaticResource CheckBoxBaseStyle}" x:Name="IsOverlayCheck" Margin="0 0 10 0" VerticalAlignment="Center" VerticalContentAlignment="Center" DockPanel.Dock="Right" Content="叠加到当前网络" FontSize="14" Checked="IsOverlayCheck_OnChecked"></CheckBox>
+            
+
+        </DockPanel>
+    </Grid>
+</Window>

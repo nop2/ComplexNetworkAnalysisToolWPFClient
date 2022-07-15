@@ -1,0 +1,19 @@
+﻿<Window x:Class="ComplexNetworkAnalysisTool.Views.DataReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:local="clr-namespace:ComplexNetworkAnalysisTool.Views"
+        xmlns:cef="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+
+        mc:Ignorable="d"
+        Title="数据分析报告" Height="600" Width="1100" Closed="DataReportWindow_OnClosed">
+    <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <hc:LoadingCircle Height="40" Width="40"></hc:LoadingCircle>
+            <TextBlock Text="正在生成报告..." FontSize="30" VerticalAlignment="Center" ></TextBlock>
+        </StackPanel>
+        <cef:ChromiumWebBrowser x:Name="ReportBrowser" ></cef:ChromiumWebBrowser>
+    </Grid>
+</Window>
